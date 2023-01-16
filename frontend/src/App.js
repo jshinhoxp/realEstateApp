@@ -1,25 +1,21 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
 
+import "./css/App.css"
+// Import react components below
+import Navbar from './Components/Navbar';
+import Footer from './Components/Footer';
+import Features from './Components/Features';
+
+// <> is the short syntax for fragments
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="page-container">
+        <div className="content-wrapper">
+          <Navbar />
+          <Features />
+          <Footer />
+        </div>
     </div>
-  );
+  )
 }
-
 export default App;
