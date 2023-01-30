@@ -7,8 +7,7 @@ Ref: https://blog.logrocket.com/using-react-django-create-app-tutorial/
 
 ## BACKGROUND
 * Create an django REST Api for frontend to utilize.
-Backend = Django 
-Frontend = React
+Backend = Django
 
 *React requires node.js to be installed
 *Django requires python to be installed
@@ -37,7 +36,7 @@ Frontend = React
 1. Create and Clone GitHub Repo 
 2. Install Python your system
 3. Create virtual environment within repo. 
-"python3 -m venv .venv"
+"py -m venv .venv"
 4. Within venv, install django via pip 
 "pip install django"
 & pip install djangorestframework = a powerful and flexible toolkit for building Web APIs
