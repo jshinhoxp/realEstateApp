@@ -8,7 +8,7 @@ from django.http import HttpResponse
 #    serializer_class = ApprovalSerializers
 
 def index(request):
-   return HttpResponse('<h1> Django Include URLs </h1>')
+   return render(request, "index.html", {})
 
 def about(request):
    return HttpResponse('<h1>this is about</h1>')
