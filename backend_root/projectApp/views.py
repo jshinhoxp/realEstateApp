@@ -1,20 +1,22 @@
+# NOTE: Houses most of the algorithm in background
+
 from django.shortcuts import render
 from django.http import HttpResponse
-from joblib import dump, load
-# Houses most of the algorithm in background
+from joblib import dump, load # for ML model
+from .forms import HouseForm
 
-# class ApprovalsView(viewsets.ModelViewSet):
-#    # grabs anything in models    
-#    queryset = Approval.objects.all()
-#    serializer_class = ApprovalSerializers
 
+# Home Page
 def index(request):
-
-   return render(request, "index.html", {})
-
-def prediction(request):
-   # Load
-   sales = pd.read_csv('home_data.csv') 
-   basic_features = ['bedrooms', 'bathrooms', 'sqft_living', 'sqft_lot', 'floors', 'zipcode']
-   model = joblib.load("basic_model.joblib")
-   y_pred = mdl.predict()
+   # Create an object of form and posts it
+   form = HouseForm(request.POST or None) 
+   # Check if form data is valid
+   if form.is_valid():
+      # Save the form data to model
+      form.save()
+   # Create dictionary to pass into render below
+   context = {
+      'form': form
+   }
+   return render(request, "index.html", context)
+   

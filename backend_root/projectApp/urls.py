@@ -5,7 +5,7 @@ from rest_framework import routers
 # router = routers.DefaultRouter()
 # router.register('projectApp', views.ApprovalsView)
 urlpatterns = [
-    path('', views.index, name = 'home'),
+    path('', views.index, name = 'index'), 
     # path('about/', views.about, name = 'about')
     # path('api/', include(router.urls)),
     # path('status/', views.approvereject),

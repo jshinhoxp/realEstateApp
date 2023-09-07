@@ -1,10 +1,10 @@
 # Mechanism that handles request and converts to json file
 
 from rest_framework import serializers
-from .models import Approval
+from .models import Housing
 
-class approvalsSerializers(serializers.ModelSerializer):
+class HousingSerializers(serializers.ModelSerializer):
    class Meta:
-      model=Approval
+      model=Housing
       fields='__all__'
       
