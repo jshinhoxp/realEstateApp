@@ -9,6 +9,7 @@ class House(models.Model):
 	bathrooms=models.IntegerField(default=0)
 	bedrooms=models.IntegerField(default=0)
 	sqft=models.IntegerField(default=0)
+	created = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
 		return '{}'.format(self.address)

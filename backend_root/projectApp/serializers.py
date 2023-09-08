@@ -1,10 +1,11 @@
 # Mechanism that handles request and converts to json file
 
 from rest_framework import serializers
-from .models import Housing
+from .models import House
 
-class HousingSerializers(serializers.ModelSerializer):
+# Serializers define the API representation.
+class HousingSerializer(serializers.ModelSerializer):
    class Meta:
-      model=Housing
+      model=House
       fields='__all__'
       

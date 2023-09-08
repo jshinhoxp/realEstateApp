@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     
     # My Apps
     'rest_framework',
-    'projectApp'
+    'projectApp',
 ]
 
 MIDDLEWARE = [
