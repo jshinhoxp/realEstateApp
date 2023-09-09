@@ -13,5 +13,6 @@ class House(models.Model):
 	floors=models.IntegerField(default=1)
 	created = models.DateTimeField(auto_now_add=True)
 
+	# Display string
 	def __str__(self):
 		return '{},{},{}'.format(self.address,self.city,self.state)
