@@ -11,6 +11,9 @@ class House(models.Model):
 	sqft_living=models.IntegerField(default=0)
 	sqft_lot=models.IntegerField(default=0)
 	floors=models.IntegerField(default=1)
+	latitude=models.FloatField(default=0)
+	longitude=models.FloatField(default=0)
+	estPrice=models.IntegerField(default=0)
 	created = models.DateTimeField(auto_now_add=True)
 
 	# Display string

@@ -4,4 +4,17 @@ from .models import House
 class HouseForm(forms.ModelForm):
    class Meta:
       model = House
-      fields = '__all__'
+      fields = {'address',
+         'city',
+         'state',
+         'bathrooms',
+         'sqft_living',
+         'sqft_lot',
+         'floors'}
+   field_order = ['address',
+         'city',
+         'state',
+         'bathrooms',
+         'sqft_living',
+         'sqft_lot',
+         'floors']
