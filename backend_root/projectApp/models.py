@@ -3,14 +3,16 @@ from django.db import models
 
 class House(models.Model):
 	# Model Attributes
-	address=models.CharField(max_length=15)
-	city=models.CharField(max_length=15)
+	address=models.CharField(max_length=20)
+	city=models.CharField(max_length=20)
 	state=models.CharField(max_length=2)
 	bedrooms=models.IntegerField(default=0)
 	bathrooms=models.IntegerField(default=0)
 	sqft_living=models.IntegerField(default=0)
 	sqft_lot=models.IntegerField(default=0)
 	floors=models.IntegerField(default=1)
+	# Processed Attributes
+	fullAddress=models.CharField(max_length=50, default='UNK')
 	latitude=models.FloatField(default=0)
 	longitude=models.FloatField(default=0)
 	estPrice=models.IntegerField(default=0)

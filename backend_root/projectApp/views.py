@@ -32,16 +32,15 @@ file_path = os.path.join(base_dir, relative_path)
 # Home Index Page
 def index(request):
    # Initially create estimated price variable
-   result = 0
-   # Create an object of form and posts it
-   form = HouseForm(request.POST or None) 
+   price = 0
+   # Create a form object from POST data
+   form = HouseForm(request.POST) 
    # Check if form data is valid
    if form.is_valid():
-      # Save the form data to model
-      form.save()
+      # Save the form data to model via INSERT SQL
+      form.save() 
       # Convert to JSON dictioanry for display
       data = form.cleaned_data   
-      print(data) # prints to command prompt
       # Omit the specific columns
       omitted_keys = ['address', 'city', 'state']
       # loop through to omit the unwanted columns
@@ -49,32 +48,33 @@ def index(request):
       # Convert to dataframe
       df = pd.DataFrame([result_dict])
       print(df) # Check to see if printed in terminal
-      result = algo(df)
+      price = algo(df)
+      # Populate info for last entry
+      entry = House.objects.latest('id') # Retrieve last entry
+      fullAddress = str(entry.address + "," +
+                        entry.city + "," +
+                        entry.state)
+      location = geoLoc.geocode(fullAddress)
+      entry.fullAddress = fullAddress
+      entry.latitude = location.latitude
+      entry.longitude = location.longitude
+      entry.estPrice = price
+      entry.save() # save changed entry to database
 
-   # Folium Map (starting in UW Seattle)
-   m = folium.Map(location=[47.654519,-122.306732],zoom_start=12)
-
-   # Query for all objects from database model
-   house = House.objects.all()
-   # converts the query to serializer
-   serializer = HousingSerializer(house, many=True)
-   # Gets the geographic lat and long of each address
-   for dataEntry in serializer.data:
-      fullAddress = str(dataEntry['address'] + ", "
-         + dataEntry['city'] + ", "
-         + dataEntry['state'])
-      getLoc = geoLoc.geocode(fullAddress)
-      print(f"Latitude: {getLoc.latitude} Longitude: {getLoc.longitude}")
+      # Folium Map (starting in UW Seattle)
+      m = folium.Map(location=[47.654519,-122.306732],zoom_start=12)
+      
+      # Add Marker for each dataset
       folium.Marker(
-         location=[getLoc.latitude, getLoc.longitude],
-         popup=fullAddress
+         location=[entry.latitude, entry.longitude],
+         popup=entry.fullAddress,
          # NOTE: NEED TO ADD ESTIMATED PRICE in popup
       ).add_to(m)
 
    # Create dictionary to pass into render below
    context = {
       'myform': form,
-      'result': result,
+      'price': price,
       'map': m._repr_html_, # converts follium map to html
    }
    return render(request, "index.html", context)
