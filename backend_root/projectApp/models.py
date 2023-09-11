@@ -20,4 +20,4 @@ class House(models.Model):
 
 	# Display string
 	def __str__(self):
-		return '{},{},{}'.format(self.address,self.city,self.state)
+		return '{}'.format(self.fullAddress)

@@ -29,6 +29,9 @@ base_dir = os.path.dirname(os.path.abspath(os.path.join(__file__, '..')))
 relative_path = 'projectApp\\algo\\basic_model.joblib'
 file_path = os.path.join(base_dir, relative_path)
 
+# Folium Map (starting in UW Seattle)
+m = folium.Map(location=[47.654519,-122.306732],zoom_start=12)
+
 # Home Index Page
 def index(request):
    # Initially create estimated price variable
@@ -51,8 +54,8 @@ def index(request):
       price = algo(df)
       # Populate info for last entry
       entry = House.objects.latest('id') # Retrieve last entry
-      fullAddress = str(entry.address + "," +
-                        entry.city + "," +
+      fullAddress = str(entry.address + ", " +
+                        entry.city + ", " +
                         entry.state)
       location = geoLoc.geocode(fullAddress)
       entry.fullAddress = fullAddress
@@ -60,22 +63,23 @@ def index(request):
       entry.longitude = location.longitude
       entry.estPrice = price
       entry.save() # save changed entry to database
-
-      # Folium Map (starting in UW Seattle)
-      m = folium.Map(location=[47.654519,-122.306732],zoom_start=12)
-      
+     
       # Add Marker for each dataset
       folium.Marker(
          location=[entry.latitude, entry.longitude],
-         popup=entry.fullAddress,
+         popup= folium.Popup(
+            str(entry.fullAddress) + "\n $" + str(entry.estPrice), max_width=200)  
          # NOTE: NEED TO ADD ESTIMATED PRICE in popup
       ).add_to(m)
+
+      # Go to location in map
+      m.fit_bounds([(entry.latitude,entry.longitude)])
 
    # Create dictionary to pass into render below
    context = {
       'myform': form,
       'price': price,
-      'map': m._repr_html_, # converts follium map to html
+      'map': m._repr_html_ # converts follium map to html
    }
    return render(request, "index.html", context)
 
