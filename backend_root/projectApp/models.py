@@ -6,6 +6,8 @@ class House(models.Model):
 	address=models.CharField(max_length=20)
 	city=models.CharField(max_length=20)
 	state=models.CharField(max_length=2)
+	zipcode=models.IntegerField(default=0)
+	
 	bedrooms=models.IntegerField(default=0)
 	bathrooms=models.IntegerField(default=0)
 	sqft_living=models.IntegerField(default=0)
