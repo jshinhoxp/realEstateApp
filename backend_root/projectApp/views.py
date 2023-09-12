@@ -1,29 +1,30 @@
 # NOTE: Houses most of the algorithm in background
-#NOTE: View Function always returns a HTTPResponse
-
-import os
-
+# NOTE: View Function always returns a HTTPResponse
+ 
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from joblib import dump, load # for ML model
 import pandas as pd
-from geopy.geocoders import Nominatim
 # Create geolocator
+from geopy.geocoders import Nominatim # Uses Leaflet via geopy
 geoLoc = Nominatim(user_agent="myGeoloc")
-
 from .forms import HouseForm
-
-from rest_framework import viewsets
-from rest_framework import permissions
+# Importing the Django rest_framework for api endpoints
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-
+# Import internal model and serilizer objects
 from .models import House
 from projectApp.serializers import HousingSerializer
-
+# Maps
 import folium
 import folium.plugins
+# IPython Widgets
+from ipywidgets import IntSlider 
+from ipywidgets.embed import embed_minimal_html
+from IPython.display import display_html
+# Import python functions for creating and loading ML models
+from joblib import dump, load # for ML model
 
+import os
 # Get the base directory of your Django project (where your manage.py file is located)
 base_dir = os.path.dirname(os.path.abspath(os.path.join(__file__, '..')))
 relative_path = 'projectApp\\ml_models\\'
@@ -32,6 +33,7 @@ file_path = os.path.join(base_dir, relative_path)
 # Folium Map (starting in UW Seattle)
 m = folium.Map(location=[47.654519,-122.306732],zoom_start=12)
 
+## FUNCTIONS ##
 # Home Index Page
 def index(request):
    # Initially create estimated price variable
@@ -67,15 +69,23 @@ def index(request):
       # Go to location in map
       m.fit_bounds([(entry.latitude,entry.longitude)])
 
+   # Show Chart of ML Model
+   zipcode_widget = chart()
+   # Get the HTML representation of the widget
+   html = embed_minimal_html('export.html', views=[zipcode_widget], title='Widgets Export')
+   print(chart())
+   print(html)
+
    # Create dictionary to pass into render below
    context = {
       'myform': form,
       'price': price,
-      'map': m._repr_html_ # converts follium map to html
+      'map': m._repr_html_, # converts follium map to html
+      'zipcode_widget': html
    }
    return render(request, "index.html", context)
 
-# Receives the input dataframe and predicts the model
+# Receives the entry and predicts outcome using respective Zipcode model
 def algo(entry):
    # Create dataframe from entry
    entryDict = {
@@ -94,6 +104,25 @@ def algo(entry):
    # Return prediction
    return y_pred
 
+# Creates and returns the machine learning chart
+def chart():
+   # Querys all data from database
+   house = House.objects.all()
+   # Serializer
+   serializer = HousingSerializer(house, many=True)
+   # Get all zipcodes
+   df =pd.DataFrame.from_dict(serializer.data)
+   # Zipcode widget
+   # zipcode_widget = widgets.Select(
+   #    # List the options 
+   #    options=df['zipcode'].unique(),
+   #    description='Zipcodes: ',
+   #    disabled=False
+   # )
+
+   slider = IntSlider(value=40)
+   embed_minimal_html('export.html', views=[slider], title='Widgets export')
+   return slider
 
 # GET method
 @api_view(['GET'])
@@ -111,7 +140,6 @@ def addData(request):
    if serializer.is_valid():
       serializer.save()
    return Response(serializer.data)
-
 
 # GET method
 @api_view(['POST'])

@@ -8,4 +8,3 @@ class HousingSerializer(serializers.ModelSerializer):
    class Meta:
       model=House
       fields='__all__'
-      
