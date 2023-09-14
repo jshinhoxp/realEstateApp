@@ -41,25 +41,12 @@ m = folium.Map(location=[47.654519,-122.306732],zoom_start=12)
 # Load the house data
 sales = pd.read_csv('home_data.csv')
 
-def zipcodeForm(response):
-   if response.method == "POST":
-      myZipcode = zipcodeForm(response.POST) # contains the form info
-      if myZipcode.is_valid():
-         n = myZipcode.cleaned_data["zipcode"]
-   else:
-      myZipcode = zipcodeForm()
-
-   context= {
-      'form': myZipcode
-   }
-   return render(response, "index.html", context)
-
-## FUNCTIONS ##
+# PAGES
 # Home Index Page
 def index(request):
    # Initially create estimated price variable
    price = 0
-   zipcode = 98001
+   zipcode = 98105 # Gas Works Park
    if request.method == "POST":
       # Create a form object from POST data
       form = HouseForm(request.POST) 
@@ -100,6 +87,27 @@ def index(request):
       'fig2': fig2_html
    }
    return render(request, "index.html", context)
+
+def about(request):
+   hello = "Hello World!"
+
+   context = {'hello':hello}
+   return render(request, "about.html", context)
+
+## FUNCTIONS ##
+def zipcodeForm(response):
+   if response.method == "POST":
+      myZipcode = zipcodeForm(response.POST) # contains the form info
+      if myZipcode.is_valid():
+         n = myZipcode.cleaned_data["zipcode"]
+   else:
+      myZipcode = zipcodeForm()
+
+   context= {
+      'form': myZipcode
+   }
+   return render(response, "index.html", context)
+
 
 def mapMarker():
    # querys all data from database
