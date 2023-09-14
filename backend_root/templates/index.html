@@ -6,23 +6,24 @@
 <!-- Enter your body for this html-->
 
 <div class="container">  
-   <div class="row justify-content-center align-items-center" style="border:2px solid blue">
-      <div class="col-sm-4" style="border:1px solid red"id="form"> 
-         <h2 class="text-center" >Home Price Estimate</h2>
+   <div class="row justify-content-center align-items-center">
+      <div class="col-sm-4" id="form"> 
+         <h2 class="text-center" >Home Price Estimator <br> (Seattle, WA) </h2>
          <!-- Using Django ModelForms-->
          <form method="POST" action="#"> <!-- POSTS to database-->
             {% csrf_token %}
             {{myform.as_p}} 
-            <input type="submit" value="Send">
+            <input type="submit" value="Calculate">
          </form>
-         <!-- Estimated pricing-->
-         <p> <b>Estimated price</b>: ${{ price|floatformat:2}} </p>
       </div>
       <div class="col-lg" id="folium-map">
+         <!-- Estimated pricing-->
+         <p>Estimated Price: <b>${{ price|floatformat:2}} </b> </p>
       {{map|safe}}
       </div>
    </div>
    <div>
+      
      {{zipcode_widget|safe}}
    </div>
    <div>

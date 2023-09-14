@@ -20,5 +20,5 @@ class HouseForm(forms.ModelForm):
       for field in self.Meta.required:
          self.fields[field].required = False
 
-class myForm(forms.Form):
-    name = forms.CharField(label="Name", max_length=200, required=False)
+class zipcodeForm(forms.Form):
+    zipcode= forms.IntegerField()

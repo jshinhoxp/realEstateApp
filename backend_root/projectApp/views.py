@@ -12,7 +12,7 @@ geoLoc = Nominatim(user_agent="myGeoloc")
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 # Import internal form, model and serilizer objects
-from .forms import HouseForm, myForm
+from .forms import HouseForm, zipcodeForm
 from .models import House
 from projectApp.serializers import HousingSerializer
 # Maps
@@ -41,26 +41,25 @@ m = folium.Map(location=[47.654519,-122.306732],zoom_start=12)
 # Load the house data
 sales = pd.read_csv('home_data.csv')
 
-def create(response):
+def zipcodeForm(response):
    if response.method == "POST":
-      myForm1 = myForm(response.POST) # contains the form info
-      if myForm1.is_valid():
-         n = myForm1.cleaned_data["name"]
+      myZipcode = zipcodeForm(response.POST) # contains the form info
+      if myZipcode.is_valid():
+         n = myZipcode.cleaned_data["zipcode"]
    else:
-      myForm1 = myForm()
+      myZipcode = zipcodeForm()
 
    context= {
-      'form': myForm1
+      'form': myZipcode
    }
    return render(response, "index.html", context)
-
-
 
 ## FUNCTIONS ##
 # Home Index Page
 def index(request):
    # Initially create estimated price variable
    price = 0
+   zipcode = 98001
    if request.method == "POST":
       # Create a form object from POST data
       form = HouseForm(request.POST) 
@@ -77,18 +76,20 @@ def index(request):
          entry.fullAddress = fullAddress
          entry.latitude = location.latitude
          entry.longitude = location.longitude
+         zipcode = entry.zipcode 
          # Calculate the estimated price using the ML_Model
-         price = algo(entry) # passes the latest django model object
+         price = calcPrice(entry) # passes the latest django model object
          entry.estPrice = price      
          entry.save() # save changed entry to database
    else:
-      form = HouseForm()
+      form = HouseForm() # blank form
    # Mark all points in database
    mapMarker()
 
-   # Converts
-   fig1_html = chart1(sales).to_html()
+   # Converts the plotly figures to html
+   fig1_html = chart1(sales, zipcode).to_html()
    fig2_html = chart2(sales).to_html()
+
 
    # Create dictionary to pass into render below
    context = {
@@ -108,21 +109,27 @@ def mapMarker():
    # Covert to pandas Dataframe
    df = pd.DataFrame(records)
    # Extract only latitude and longitudes
-   df = df[['fullAddress','latitude','longitude']]
+   df = df[
+      ['address','city','state','zipcode', 'latitude','longitude','estPrice']]
    print(df)
    # Iterate through the rows of the DataFrame
+
    for index, row in df.iterrows():
       # Create a folium.Marker for each row
       marker = folium.Marker(
          location=[row['latitude'], row['longitude']],
-         popup=row['fullAddress']
+         popup=folium.Popup(
+            row['address'] + "<br>" + row['city'] + ", " + row['state'] + 
+            ", " + str(row['zipcode']) + "<br><b>$" + str(row['estPrice']/1000) +"K</b>",
+            max_width=200,
+            lazy=True,
+            )
       )
       # Add the markers to the map
       marker.add_to(m)
-
-
+   
 # Receives the entry and predicts outcome using respective Zipcode model
-def algo(entry):
+def calcPrice(entry):
    # Create dataframe from entry
    entryDict = {
       'bedrooms': entry.bedrooms,
@@ -140,8 +147,33 @@ def algo(entry):
    # Return prediction
    return y_pred
 
+def chart1(sales, zipcode):
+   # Filter sales df by zipcode
+   df = sales[sales['zipcode']==zipcode]
+   fig2 = px.scatter(df, x="sqft_living",y="price", 
+                  title="Overall",
+                  trendline="ols" # adds a trendline
+                  )
+   # Get the latest entry
+   query= House.objects.latest('id')
+   serializer = HousingSerializer(query)  
+   # fig2.add_trace(serializer.data, x="sqft_living",y="price")
+
+   fig2.add_trace(
+    go.Scatter(
+        x=[serializer.data["sqft_living"]],
+        y=[serializer.data["estPrice"]],
+        marker_symbol='x',
+        marker_size=15,
+        showlegend=True)
+   )
+   # Set title
+   fig2.update_layout(title_text="Price vs Sqft_living <br> Zipcode:" + 
+                      str(zipcode))
+   return fig2
+
 # Creates and returns the machine learning chart
-def chart1(sales):
+def chart2(sales):
    # Order by zipcode
    sales = sales.sort_values('zipcode')
    # Create a list of the unique zipcodes (numpy.ndarray)
@@ -220,24 +252,10 @@ def chart1(sales):
       i += 1
       
    # Shows the geographic data
-   fig1= px.scatter(sales, x="long",y="lat", 
-                  color='zipcode', title='King County Housing Dataset 2014',
-                  size='price')
-
-   return fig1
-
-def chart2(sales):
-   
-   zipcode = 98001
-   df = sales[sales['zipcode']==zipcode]
-
-   fig2= px.scatter(sales, x="sqft_living",y="price", 
-                  color='zipcode', title='byZipecode',
-                  trendline="ols"
+   fig2= px.scatter(sales, x="long", y="lat",
+                  color='zipcode', title='Seattle Metro Housing Dataset 2014',
+                  size='price',
                   )
-
-   # Set title
-   fig2.update_layout(title_text="Price vs Sqft_living")
    return fig2
 
 # GET method
