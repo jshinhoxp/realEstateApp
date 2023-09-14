@@ -84,14 +84,16 @@ def index(request):
       'price': price,
       'map': m._repr_html_, # converts follium map to html
       'fig1': fig1_html,
-      'fig2': fig2_html
+      'fig2': fig2_html,
+      'nbar': "index"
    }
    return render(request, "index.html", context)
 
 def about(request):
    hello = "Hello World!"
 
-   context = {'hello':hello}
+   context = {'hello':hello,
+              'nbar': "about"}
    return render(request, "about.html", context)
 
 ## FUNCTIONS ##
