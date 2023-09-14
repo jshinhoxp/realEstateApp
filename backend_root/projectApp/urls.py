@@ -11,6 +11,6 @@ urlpatterns = [
     path('', views.index, name = 'index'), 
     path('api/', views.getData),
     path('api/add', views.addData),
-    path('locator', views.locator)
-    # path('status/', views.approvereject),
+    path('locator', views.locator),
+    path('create',views.create, name="create")
 ]

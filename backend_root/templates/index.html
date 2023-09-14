@@ -1,92 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Home Price Estimator</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+{% extends "base.html" %}
 
-  <!--CSS Styling-->
-  <style>
-    body {
-      font-family: 'Calibri';
-    }
-    
-    /* Remove the navbar's default margin-bottom and rounded borders */ 
-    .navbar {
-      margin-bottom: 0;
-      border-radius: 0;
-    }
-    
-    /* On small screens, set height to 'auto' for sidenav and grid */
-    @media screen and (max-width: 767px) {
-      .sidenav {
-        height: auto;
-        padding: 15px;
-      }
-      .row.content {height:auto;} 
-    }
+{% block title %}Custom Title{% endblock %}
 
-    #form {
-      width: 100%;
-      height: 100%;
-    }
+{% block content %}
+<!-- Enter your body for this html-->
 
-    #folium-map {
-      width: 90%; 
-      height: 90%;
-      min-width: 400px;
-    }
-  </style>
-</head>
-<body>
-
-<!-- Navigation Bar-->
-<nav class="navbar navbar-inverse">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>                        
-      </button>
-      <a class="navbar-brand" href="#"><i class="bi bi-house"></i></a>
-    </div>
-    <div class="collapse navbar-collapse" id="myNavbar">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="#">Home</a></li>
-        <li><a href="admin">Admin</a></li>
-        <li><a href="about">About</a></li>
-        <li><a href="#">Contact</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-<!-- Main Body Content-->
-<div class="container-fluid">  
-  <div class="container mx-auto text-center" id="form"> 
-    <h1>Home Price Estimate</h1>
-    <!-- Using Django ModelForms-->
-    <form action="" method="POST"> <!-- POSTS to database-->
-      {% csrf_token %}
-      {{myform.as_p}} 
-      <input type="submit" value="Send">
-    </form>
-    <!-- Estimated pricing-->
-    <p> <b>Estimated price</b>: ${{ price|floatformat:2}} </p>
-  </div>
-  <div class="container mx-auto" id="folium-map">
-    {{map|safe}}
-  </div>
-  <div>
-    {{zipcode_widget|safe}}
-  </div>
-</div>
-
-
-</body>
-</html>
+<div class="container">  
+   <div class="row justify-content-center align-items-center" style="border:2px solid blue">
+      <div class="col-sm-4" style="border:1px solid red"id="form"> 
+         <h2 class="text-center" >Home Price Estimate</h2>
+         <!-- Using Django ModelForms-->
+         <form method="POST" action="#"> <!-- POSTS to database-->
+            {% csrf_token %}
+            {{myform.as_p}} 
+            <input type="submit" value="Send">
+         </form>
+         <!-- Estimated pricing-->
+         <p> <b>Estimated price</b>: ${{ price|floatformat:2}} </p>
+      </div>
+      <div class="col-lg" id="folium-map">
+      {{map|safe}}
+      </div>
+   </div>
+   <div>
+     {{zipcode_widget|safe}}
+   </div>
+   <div>
+     {{fig1|safe}}
+   </div>
+   <div>
+     {{fig2|safe}}
+   </div>
+ </div>
+{% endblock %}
