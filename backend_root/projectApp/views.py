@@ -2,15 +2,8 @@
 # NOTE: View Function always returns a HTTPResponse
 
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
 import pandas as pd
-# Create geolocator
 from geopy.geocoders import Nominatim # Uses Leaflet via geopy
-geoLoc = Nominatim(user_agent="myGeoloc")
-
-# Importing the Django rest_framework for api endpoints
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
 # Import internal form, model and serilizer objects
 from .forms import HouseForm, zipcodeForm
 from .models import House
@@ -33,20 +26,21 @@ import os
 '''START HERE'''
 # Get the base directory of your Django project (where your manage.py file is located)
 base_dir = os.path.dirname(os.path.abspath(os.path.join(__file__, '..')))
-relative_path = 'projectApp\\'
-file_path = os.path.join(base_dir, relative_path)
-
+# Geographic Locator Object using Leaflet Nominatim
+geoLoc = Nominatim(user_agent="myGeoloc")
 # Folium Map (starting in UW Seattle)
 m = folium.Map(location=[47.654519,-122.306732],zoom_start=12)
 # Load the house data
-sales = pd.read_csv('home_data.csv')
+sales = pd.read_csv(
+   os.path.join(base_dir, 'projectApp/ml_script/home_data.csv'))
 
 # PAGES
 # Home Index Page
 def index(request):
    # Initially create estimated price variable
    price = 0
-   zipcode = 98105 # Gas Works Park
+   zipcode = 98105 # Gas Works Park (initial zipcode)
+   # Monitor if request was sent from user
    if request.method == "POST":
       # Create a form object from POST data
       form = HouseForm(request.POST) 
@@ -70,14 +64,12 @@ def index(request):
          entry.save() # save changed entry to database
    else:
       form = HouseForm() # blank form
+
    # Mark all points in database
    mapMarker()
-
    # Converts the plotly figures to html
    fig1_html = chart1(sales, zipcode).to_html()
-   fig2_html = chart2(sales).to_html()
-
-
+   fig2_html = datasetChart(sales).to_html()
    # Create dictionary to pass into render below
    context = {
       'myform': form,
@@ -85,32 +77,17 @@ def index(request):
       'map': m._repr_html_, # converts follium map to html
       'fig1': fig1_html,
       'fig2': fig2_html,
-      'nbar': "index"
+      'nbar': "index" # highlights active link on navbar
    }
    return render(request, "index.html", context)
 
 def about(request):
    hello = "Hello World!"
-
    context = {'hello':hello,
-              'nbar': "about"}
+              'nbar': "about"} # highlights active link on navbar
    return render(request, "about.html", context)
 
-## FUNCTIONS ##
-def zipcodeForm(response):
-   if response.method == "POST":
-      myZipcode = zipcodeForm(response.POST) # contains the form info
-      if myZipcode.is_valid():
-         n = myZipcode.cleaned_data["zipcode"]
-   else:
-      myZipcode = zipcodeForm()
-
-   context= {
-      'form': myZipcode
-   }
-   return render(response, "index.html", context)
-
-
+###### FUNCTIONS ######
 def mapMarker():
    # querys all data from database
    queryset= House.objects.all()
@@ -121,9 +98,7 @@ def mapMarker():
    # Extract only latitude and longitudes
    df = df[
       ['address','city','state','zipcode', 'latitude','longitude','estPrice']]
-   print(df)
    # Iterate through the rows of the DataFrame
-
    for index, row in df.iterrows():
       # Create a folium.Marker for each row
       marker = folium.Marker(
@@ -151,11 +126,13 @@ def calcPrice(entry):
    # Convert to dataframe
    df = pd.DataFrame([entryDict])
    # Load the condensed model file
-   mdl = load(file_path + "ml_models\\" + str(entry.zipcode))
+   mdl = load(
+      os.path.join(base_dir, 'projectApp/ml_models/' + str(entry.zipcode)))
    # Predict based on input
    y_pred = mdl.predict(df)
    # Return prediction
    return y_pred
+
 
 def chart1(sales, zipcode):
    # Filter sales df by zipcode
@@ -182,9 +159,18 @@ def chart1(sales, zipcode):
                       str(zipcode))
    return fig2
 
-# Creates and returns the machine learning chart
-def chart2(sales):
-   # Order by zipcode
+# Dataset chart
+def datasetChart(sales):      
+   # Shows the geographic data
+   fig2= px.scatter(sales, x="long", y="lat",
+                  color='zipcode', title='Seattle Metro Housing Dataset 2014',
+                  size='price',
+                  )
+   return fig2
+
+# Creates the Linear Regression Models for Housing Prices
+def createMLmodels():
+    # Order by zipcode
    sales = sales.sort_values('zipcode')
    # Create a list of the unique zipcodes (numpy.ndarray)
    unique_zipcodes = sales['zipcode'].unique()
@@ -226,13 +212,6 @@ def chart2(sales):
       train_rmse_basic = mean_squared_error(y, y_pred, squared=False) #False = rmse
       list_of_rmse_basic_train.append(train_rmse_basic)
 
-   print(f"# of ML models: ", len(list_of_models))
-   print(f"# of Root Mean Squared Error: ", len(list_of_rmse_basic_train))
-
-   print(f"# of zipcodes:", len(unique_zipcodes))
-   print(f"# of (train) dataframes:", len(list_of_df_train))
-   print(f"# of (test) dataframes:", len(list_of_df_test))
-
    # Comparing with Test Data
    list_of_rmse_basic_test = []
 
@@ -252,47 +231,10 @@ def chart2(sales):
    'list_of_rmse_basic_test': list_of_rmse_basic_test
    })
    
-   path = "ml_models/"
    # Create and dump models into designated folder
    i = 0
    while (i < len(list_of_models)):
       model = list_of_models[i]
       zipcode = unique_zipcodes[i]
-      dump(model, file_path + path + str(zipcode))
+      dump(model, os.path.join(base_dir, 'projectApp/ml_models/' + str(zipcode)))
       i += 1
-      
-   # Shows the geographic data
-   fig2= px.scatter(sales, x="long", y="lat",
-                  color='zipcode', title='Seattle Metro Housing Dataset 2014',
-                  size='price',
-                  )
-   return fig2
-
-# GET method
-@api_view(['GET'])
-def getData(request):
-   # querys all data from database
-   house = House.objects.all()
-   # converts the query to serializer
-   serializer = HousingSerializer(house, many=True)  
-   return Response(serializer.data)
-
-# POST method (another way of post into database)
-@api_view(['POST'])
-def addData(request):
-   serializer = HousingSerializer(data=request.data)
-   if serializer.is_valid():
-      serializer.save()
-   return Response(serializer.data)
-
-# GET method
-@api_view(['POST'])
-def locator(request):
-   # querys all data from database
-   queryset= House.objects.all()
-   # Convert to list
-   records = list(queryset.values())
-   # Covert to pandas Dataframe
-   df = pd.DataFrame(records)
-   print(df)
-   return Response(records)
