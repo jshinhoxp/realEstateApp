@@ -3,7 +3,7 @@ from django.db import models
 
 class House(models.Model):
 	# Model Attributes
-	address=models.CharField(max_length=30, default="2101 N Northlake Way")
+	address=models.CharField(max_length=40, default="2101 N Northlake Way")
 	city=models.CharField(max_length=20, default="Seattle")
 	state=models.CharField(max_length=2, default="WA")
 	zipcode=models.IntegerField(default=98103)

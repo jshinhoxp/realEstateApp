@@ -5,7 +5,7 @@ from django.shortcuts import render
 import pandas as pd
 from geopy.geocoders import Nominatim # Uses Leaflet via geopy
 # Import internal form, model and serilizer objects
-from .forms import HouseForm, zipcodeForm
+from .forms import HouseForm
 from .models import House
 from projectApp.serializers import HousingSerializer
 # Maps
@@ -21,6 +21,8 @@ from sklearn.metrics import mean_squared_error
 import plotly.express as px
 import plotly.graph_objects as go
 
+import json
+
 import os
 
 '''START HERE'''
@@ -33,6 +35,8 @@ m = folium.Map(location=[47.654519,-122.306732],zoom_start=12)
 # Load the house data
 sales = pd.read_csv(
    os.path.join(base_dir, 'projectApp/ml_script/home_data.csv'))
+# Order by zipcode
+sales = sales.sort_values('zipcode')
 
 # PAGES
 # Home Index Page
@@ -67,9 +71,12 @@ def index(request):
 
    # Mark all points in database
    mapMarker()
+
+
    # Converts the plotly figures to html
    fig1_html = chart1(sales, zipcode).to_html()
    fig2_html = datasetChart(sales).to_html()
+
    # Create dictionary to pass into render below
    context = {
       'myform': form,
@@ -112,7 +119,17 @@ def mapMarker():
       )
       # Add the markers to the map
       marker.add_to(m)
+      
+   # Create geojson layer for folium map
+   geojson_layer = folium.GeoJson(
+      os.path.join(base_dir, 'projectApp/ml_script/zipcodes.geojson'),
+      name="Seattle WA Zipcodes").add_to(m)
    
+
+   folium.LayerControl().add_to(m)
+
+
+
 # Receives the entry and predicts outcome using respective Zipcode model
 def calcPrice(entry):
    # Create dataframe from entry
@@ -133,31 +150,33 @@ def calcPrice(entry):
    # Return prediction
    return y_pred
 
-
 def chart1(sales, zipcode):
    # Filter sales df by zipcode
    df = sales[sales['zipcode']==zipcode]
-   fig2 = px.scatter(df, x="sqft_living",y="price", 
-                  title="Overall",
-                  trendline="ols" # adds a trendline
-                  )
+   fig2 = px.scatter(df, x="sqft_living", y="price")
    # Get the latest entry
    query= House.objects.latest('id')
    serializer = HousingSerializer(query)  
-   # fig2.add_trace(serializer.data, x="sqft_living",y="price")
 
+   # Add the entry point 
    fig2.add_trace(
     go.Scatter(
         x=[serializer.data["sqft_living"]],
         y=[serializer.data["estPrice"]],
         marker_symbol='x',
         marker_size=15,
+        name="Estimated Price",
         showlegend=True)
    )
    # Set title
    fig2.update_layout(title_text="Price vs Sqft_living <br> Zipcode:" + 
                       str(zipcode))
    return fig2
+
+def train_test_dict(list_of_df_train1, list_of_df_test1, zipcode):
+   trainDf = list_of_df_train1['zipcode']
+   testDf = list_of_df_test1['zipcode']
+   
 
 # Dataset chart
 def datasetChart(sales):      
@@ -170,26 +189,34 @@ def datasetChart(sales):
 
 # Creates the Linear Regression Models for Housing Prices
 def createMLmodels():
-    # Order by zipcode
+   # Order by zipcode
    sales = sales.sort_values('zipcode')
    # Create a list of the unique zipcodes (numpy.ndarray)
    unique_zipcodes = sales['zipcode'].unique()
    # Create list of dataframes by zipcode
    list_of_df = []
+   list_of_df_train = []
+   list_of_df_test = []
 
    for zipcode in unique_zipcodes:
       # Create df for each zipcode
       df = sales[sales['zipcode'] == zipcode]
       # Append to the list_of_df
       list_of_df.append(df)
-   
-   list_of_df_train = []
-   list_of_df_test = []
+
    # Split each dataframe into train (80%) and test data (20%) 
    for df in list_of_df:
       train_data, test_data = train_test_split(df, test_size=0.2)
       list_of_df_train.append(train_data)
       list_of_df_test.append(test_data)
+   # Use a loop to assign labels
+   list_of_df_train1 = {}
+   for zipcode, df in zip(unique_zipcodes, list_of_df_train):
+      list_of_df_train1[zipcode] = df
+   # Use a loop to assign labels
+   list_of_df_test1 = {}
+   for zipcode, df in zip(unique_zipcodes, list_of_df_test):
+      list_of_df_test1[zipcode] = df
 
    # List features to use for model to predict 
    basic_features = ['bedrooms', 'bathrooms', 'sqft_living', 'sqft_lot', 'floors']
@@ -225,7 +252,7 @@ def createMLmodels():
       list_of_rmse_basic_test.append(test_rmse_basic)
       i += 1
 
-   df = pd.DataFrame({
+   rmse_df = pd.DataFrame({
    'unique_zipcodes': unique_zipcodes,
    'list_of_rmse_basic_train': list_of_rmse_basic_train,
    'list_of_rmse_basic_test': list_of_rmse_basic_test
@@ -238,3 +265,5 @@ def createMLmodels():
       zipcode = unique_zipcodes[i]
       dump(model, os.path.join(base_dir, 'projectApp/ml_models/' + str(zipcode)))
       i += 1
+   
+   return list_of_df_train1, list_of_df_test1, rmse_df
