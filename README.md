@@ -1,67 +1,46 @@
-# Loan
-Superuser: jung
-Password: 12345
-
-TUTORIAL
-Ref: https://blog.logrocket.com/using-react-django-create-app-tutorial/
-Ref: https://www.youtube.com/watch?v=dJihgq_4gNg&list=PLM30lSIwxWOivNtja1_ztft1S_vrMyA0z&index=3&ab_channel=SATSifaction
-
-## Structure
--backend_root   (Project Name)
---backend       (Project Name)
+# Overview
+## Purpose
+Utilizes L1 & L2 regression model to predict future housing prices based on historical Zillow dataset.
+## Background
+Source data based on 2014 historical Zillow dataset (21613 entries) under "home_data.csv" file.
+## Packages
+django, django-rest-frameworks, sklearn, plotly, folium, geopy, etc. \n
+See requirements.txt for more info
 
 
-## BACKGROUND
-* Create an django REST Api for frontend to utilize.
-Backend = Django
+## How the Model Works
+Utilizing sklearn library, L1 & L2 regression model are trained based on 5 basic housing features of the home_data.csv dataset: ['bedrooms', 'bathrooms', 'sqft_living', 'sqft_lot', 'floors']. The models seek to minimize the residual sum of squares to find the line of best fit. The resulting models are stored by zipcode under 'backend_root/projectApp/ml_models'. \n
+More complex modeling can be created by utilizing additional features (e.g year built, grade, etc.) and utilizing higher polynomial fittings. 
 
-*React requires node.js to be installed
-*Django requires python to be installed
+## User Interface 
+User is prompted with a Django form, requesting an address the user would like to estimate within the Seattle metropolitan region. After submission, a 'POST' request is sent to index(request) within views.py to save and process the input, calculating its geographic locations (i.e lat / long) using geopy and calculating its home estimate using the L1 & L2 regression models. After updating the most recent entries, a marker is placed within the interactive map, containing its address and new home price estimate. 
 
+See requirements.txt for pip packages
 ## Concept of Operations
-1. Web Scraper
-   - Collects public information from Zillow website.
-   - Collects photos of buildings from MLS
-2. Cost-Benefit Analyzer
-   - Determines the best real estate deal for either long or short term business plans.
-   - collects photos of the residences and 
-   - Uses ML/AI to understand the scope of the repair and maintenance costs.
-   - Calculates expected maintenance and repair costs 
-   - Calculates costs of a 30 Year VA Loan
-   - DIY Option - Sources materials near location
-   - City Data - Crime
+## Code Structure
+-.venv
+- backend_root  
+-- backend
+-- node_modules
+-- projectApp
+-- templates
+-- manage.py
+-- package-lock.json
+- public
+- README.md
 
-3. Execution 
-   - Automatically contacts nearby contractors and sets up appointments via robot and/or email.
-   - Provides property management tools.
-   - Tax preparation.
-
-### STEPS
-
-#### BACKEND
-1. Create and Clone GitHub Repo 
-2. Install Python your system
-3. Create virtual environment within repo. 
-"py -m venv .venv"
-4. Within venv, install django via pip 
-"pip install django"
-& pip install djangorestframework = a powerful and flexible toolkit for building Web APIs
-& pip install django-cors-headers = an app for handling the server headers required for CORS
-
-5. Create "django-admin startproject backend" in project folder
-6. Rename mysite root folder to "backend_root"
-7. Migrate and then run server using:
-"py manage.py migrate"
-"py manage.py runserver"
-within mysite_root
-8. Create an app using "django-admin startapp MyAPI"
-
-
-#### FRONTEND
-CREATE FRONT END via REACT
-1. "npx create-react-app frontend_root" in project folder
-
-GIT VERSION CONTROL
+## Initial Steps to Recreate App 
+- Install Python your system
+- Create virtual environment within repo: "py -m venv .venv"
+- Activate .venv by running activate.bat under /.venv/Scripts
+- Within .venv, install django via pip: "pip install django"
+- Create "django-admin startproject backend" in project folder
+- (Optional) Rename mysite root folder to "backend_root"
+- Migrate and then run server using: "py manage.py migrate" "py manage.py runserver"
+within backend_root
+- Create and name an app using "django-admin startapp projectApp"
+- Connected to Amazon AWS Elastic Beanstalk to facilitate data storage and retrieval.
+### GIT VERSION CONTROL
 git add .
 git commit -m "message"
 git push
