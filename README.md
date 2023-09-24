@@ -4,12 +4,12 @@ Utilizes L1 & L2 regression model to predict future housing prices based on hist
 ## Background
 Source data based on 2014 historical Zillow dataset (21613 entries) under "home_data.csv" file.
 ## Packages
-django, django-rest-frameworks, sklearn, plotly, folium, geopy, etc. \n
+django, django-rest-frameworks, sklearn, plotly, folium, geopy, etc. <br>
 See requirements.txt for more info
 
 
 ## How the Model Works
-Utilizing sklearn library, L1 & L2 regression model are trained based on 5 basic housing features of the home_data.csv dataset: ['bedrooms', 'bathrooms', 'sqft_living', 'sqft_lot', 'floors']. The models seek to minimize the residual sum of squares to find the line of best fit. The resulting models are stored by zipcode under 'backend_root/projectApp/ml_models'. \n
+Utilizing sklearn library, L1 & L2 regression model are trained based on 5 basic housing features of the home_data.csv dataset: ['bedrooms', 'bathrooms', 'sqft_living', 'sqft_lot', 'floors']. The models seek to minimize the residual sum of squares to find the line of best fit. The resulting models are stored by zipcode under 'backend_root/projectApp/ml_models'. <br>
 More complex modeling can be created by utilizing additional features (e.g year built, grade, etc.) and utilizing higher polynomial fittings. 
 
 ## User Interface 
@@ -19,28 +19,28 @@ See requirements.txt for pip packages
 ## Concept of Operations
 ## Code Structure
 -.venv<br>
-- backend_root<br>
--- backend<br>
--- node_modules\n
--- projectApp\n
--- templates\n
--- manage.py\n
--- package-lock.json\n
-- public\n
-- README.md\n
+-backend_root<br>
+--backend<br>
+--node_modules<br>
+--projectApp<br>
+--templates<br>
+--manage.py<br>
+--package-lock.json<br>
+-public<br>
+-README.md<br>
 
 ## Initial Steps to Recreate App 
-- Install Python your system
-- Create virtual environment within repo: "py -m venv .venv"
-- Activate .venv by running activate.bat under /.venv/Scripts
-- Within .venv, install django via pip: "pip install django"
-- Create "django-admin startproject backend" in project folder
-- (Optional) Rename mysite root folder to "backend_root"
-- Migrate and then run server using: "py manage.py migrate" "py manage.py runserver"
-within backend_root
-- Create and name an app using "django-admin startapp projectApp"
-- Connected to Amazon AWS Elastic Beanstalk to facilitate data storage and retrieval.
+- Install Python your system <br>
+- Create virtual environment within repo: "py -m venv .venv" <br>
+- Activate .venv by running activate.bat under /.venv/Scripts <br>
+- Within .venv, install django via pip: "pip install django" <br>
+- Create "django-admin startproject backend" in project folder <br>
+- (Optional) Rename mysite root folder to "backend_root" <br>
+- Migrate and then run server using: "py manage.py migrate" "py manage.py runserver" 
+within backend_root<br>
+- Create and name an app using "django-admin startapp projectApp"<br>
+- Connected to Amazon AWS Elastic Beanstalk to facilitate data storage and retrieval.<br>
 ### GIT VERSION CONTROL
-git add .
-git commit -m "message"
-git push
+git add .<br>
+git commit -m "message"<br>
+git push<br>
