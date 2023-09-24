@@ -16,7 +16,6 @@ More complex modeling can be created by utilizing additional features (e.g year 
 User is prompted with a Django form, requesting an address the user would like to estimate within the Seattle metropolitan region. After submission, a 'POST' request is sent to index(request) within views.py to save and process the input, calculating its geographic locations (i.e lat / long) using geopy and calculating its home estimate using the L1 & L2 regression models. After updating the most recent entries, a marker is placed within the interactive map, containing its address and new home price estimate. 
 
 See requirements.txt for pip packages
-## Concept of Operations
 ## Code Structure
 -.venv<br>
 -backend_root<br>
@@ -40,7 +39,3 @@ See requirements.txt for pip packages
 within backend_root<br>
 - Create and name an app using "django-admin startapp projectApp"<br>
 - Connected to Amazon AWS Elastic Beanstalk to facilitate data storage and retrieval.<br>
-### GIT VERSION CONTROL
-git add .<br>
-git commit -m "message"<br>
-git push<br>
