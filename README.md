@@ -18,9 +18,9 @@ User is prompted with a Django form, requesting an address the user would like t
 See requirements.txt for pip packages
 ## Concept of Operations
 ## Code Structure
--.venv\n
-- backend_root\n
--- backend\n
+-.venv<br>
+- backend_root<br>
+-- backend<br>
 -- node_modules\n
 -- projectApp\n
 -- templates\n
