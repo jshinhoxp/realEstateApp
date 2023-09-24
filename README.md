@@ -18,16 +18,16 @@ User is prompted with a Django form, requesting an address the user would like t
 See requirements.txt for pip packages
 ## Concept of Operations
 ## Code Structure
--.venv
-- backend_root  
--- backend
--- node_modules
--- projectApp
--- templates
--- manage.py
--- package-lock.json
-- public
-- README.md
+-.venv\n
+- backend_root\n
+-- backend\n
+-- node_modules\n
+-- projectApp\n
+-- templates\n
+-- manage.py\n
+-- package-lock.json\n
+- public\n
+- README.md\n
 
 ## Initial Steps to Recreate App 
 - Install Python your system
