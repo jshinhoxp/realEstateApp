@@ -6,7 +6,10 @@ Source data based on 2014 historical Zillow dataset (21613 entries) under "home_
 ## Packages
 django, django-rest-frameworks, sklearn, plotly, folium, geopy, etc. <br>
 See requirements.txt for more info
-
+## Screenshots
+![UI](https://github.com/jung2shinho/ML_HomePrices/blob/main/public/UI.png)
+![estPrice](https://github.com/jung2shinho/ML_HomePrices/blob/main/public/estPrice.png)
+![dataset](https://github.com/jung2shinho/ML_HomePrices/blob/main/public/dataset.png)
 
 ## How the Model Works
 Utilizing sklearn library, L1 & L2 regression model are trained based on 5 basic housing features of the home_data.csv dataset: ['bedrooms', 'bathrooms', 'sqft_living', 'sqft_lot', 'floors']. The models seek to minimize the residual sum of squares to find the line of best fit. The resulting models are stored by zipcode under 'backend_root/projectApp/ml_models'. <br>
